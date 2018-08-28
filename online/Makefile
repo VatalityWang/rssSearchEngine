@@ -1,11 +1,11 @@
-INC_DIR :=  ./include/cppjieba ./include/network ./include/utils ./include
+INC_DIR :=  ./include/cppjieba ./include/network ./include/utils ./include ./include/log
 SRC_DIR = ./src ./src/utils ./src/network
 #EXE_DIR := ./bin
 CC := g++
 CPPFLAGS := -std=c++11 -g -Wno-deprecated
-LIBS := -ljson -lpthread
+LIBS := -ljson -lpthread -llog4cpp
 INC_FILE := $(addprefix -I, $(INC_DIR))
-CPP_FILE :=  $(wildcard ./src/utils/*.cpp) $(wildcard ./src/network/*.cpp) $(wildcard ./src/*.cpp)
+CPP_FILE :=  $(wildcard ./src/log/*.cpp) $(wildcard ./src/utils/*.cpp) $(wildcard ./src/network/*.cpp) $(wildcard ./src/*.cpp)
 #OBJS_HPP :=$(wildcard  $(INC_DIR)/*.hpp) $(wildcard $(INC_DIR)/*.h)
 TARGET := miniSearchEngine.exe
 $(TARGET):$(CPP_FILE)

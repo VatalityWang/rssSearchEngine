@@ -67,7 +67,7 @@ void WordQueryServer::start()
 
 void WordQueryServer::onConnection(const TcpConnectionPtr & conn)
 {
-	printf("%s\n", conn->toString().c_str());
+	logInfo(conn->toString().c_str());
 
 }
 
@@ -77,8 +77,9 @@ void WordQueryServer::onMessage(const TcpConnectionPtr & conn)
 	string msg(conn->receive());
 	size_t pos = msg.find('\n');
 	msg = msg.substr(0, pos);
-	cout << "client:" << msg << ",size:" << msg.size() << endl;
-
+	ostringstream oss;
+	oss << "client:" << msg << ",size:" << msg.size();
+	logInfo(oss.str());
 	//string ret = _wordQuery.doQuery(msg);
 	//cout << "result's size:" << ret.size() << endl;
 	//conn->send(ret);
@@ -89,25 +90,26 @@ void WordQueryServer::onMessage(const TcpConnectionPtr & conn)
 
 void WordQueryServer::onClose(const TcpConnectionPtr & conn)
 {
-	printf("%s close.\n", conn->toString().c_str());
+	logInfo(conn->toString().c_str());
 }
 
 void WordQueryServer::doTaskThread(const TcpConnectionPtr & conn, const string & msg)
 {
 	string ret = _wordQuery.doQuery(msg);
-
 	int sz = ret.size();
-	printf("result's size:%d\n",sz); 
-	//printf("%s\n\n", ret.c_str());
+	ostringstream oss;
+	oss<<"sz "<<sz;
+	logInfo(oss.str());
+
 	conn->sendInLoop(ret);
 }
 
 
 int main(void)
 {
-	logger.info("haha");
+	logoss<<"test the logoss";
+	logInfo(logoss.str());
 	WordQueryServer wordQueryServer("./conf/my.conf");
 	wordQueryServer.start();
-	
 	return 0;
 }

@@ -14,6 +14,7 @@
 #include <algorithm>
 
 #include <json/json.h>
+#include"MyLog.h"
 
 using std::cout;
 using std::endl;
@@ -23,9 +24,9 @@ using std::stringstream;
 namespace wd
 {
 
-struct SimilarityCompare//结构体 
+struct SimilarityCompare
 {
-	SimilarityCompare(vector<double> & base)//传递的参数为查询的单词的权重的vector,作为基准向量
+	SimilarityCompare(vector<double> & base)
 	: _base(base)
 	{}
 
@@ -36,7 +37,7 @@ struct SimilarityCompare//结构体
 		double rhsCrossProduct = 0;
 		double lhsVectorLength = 0;
 		double rhsVectorLength = 0;
-
+		
 		for(int index = 0; index != _base.size(); ++index)
 		{
 			lhsCrossProduct += (lhs.second)[index] * _base[index];
@@ -101,7 +102,7 @@ void WordQuery::loadLibrary()
 		}
 #endif
 
-	// load invertIndexTable，加载倒排索引表，单词，文档ID，权重
+	// load invertIndexTable
 	ifstream ifsInvertIndex(_conf.getConfigMap()[INVERTINDEX_KEY].c_str());
 	if(!ifsInvertIndex.good())
 	{	cout << "invert index ifstream open error!" << endl;}
@@ -119,13 +120,12 @@ void WordQuery::loadLibrary()
 			setID.insert(make_pair(docid, weight));
 		}
 		_invertIndexTable.insert(make_pair(word, setID));
-		
+
 //		if(++cnt == 21)
 //			break;
 	}
 	ifsInvertIndex.close();
-
-	cout << "loadLibrary() end" << endl;
+	logInfo("end");
 
 	//for debug
 #if 0
@@ -152,7 +152,9 @@ string WordQuery::doQuery(const string & str)
 
 	for(auto item : queryWords)
 	{
-		cout << item << '\n';
+		ostringstream oss;
+		oss << item;
+		logInfo(oss.str());
 		auto uit = _invertIndexTable.find(item);
 		if(uit == _invertIndexTable.end())
 		{
@@ -160,8 +162,6 @@ string WordQuery::doQuery(const string & str)
 			return returnNoAnswer();
 		}
 	}
-	cout << endl;
-
 	//计算每个词的权重
 	vector<double> weightList = getQueryWordsWeightVector(queryWords);
 	SimilarityCompare similarityCmp(weightList);
@@ -203,12 +203,12 @@ string WordQuery::returnNoAnswer()
 	return writer.write(root);
 }
 
-vector<double> WordQuery::getQueryWordsWeightVector(vector<string> & queryWords)//将要查询的单词传递过来
+vector<double> WordQuery::getQueryWordsWeightVector(vector<string> & queryWords)
 {
 	//统计词频
 	map<string, int> wordFreqMap;
 	for(auto item : queryWords)
-	{ 
+	{
 		++wordFreqMap[item];
 	}
 
@@ -219,7 +219,7 @@ vector<double> WordQuery::getQueryWordsWeightVector(vector<string> & queryWords)
 
 	for(auto & item : queryWords)
 	{
-		int df = _invertIndexTable[item].size();//所有的单词数
+		int df = _invertIndexTable[item].size();
 		double idf = log(static_cast<double>(totalPageNum) / df + 0.05) / log(2); 
 		int tf = wordFreqMap[item];
 		double w = idf * tf;
@@ -227,18 +227,18 @@ vector<double> WordQuery::getQueryWordsWeightVector(vector<string> & queryWords)
 		weightList.push_back(w);
 	}
 
-	//归一化，一篇文档中包含多个词语，需要进行归一化处理
+	//归一化
 	for(auto & item : weightList)
 	{
 		item /= sqrt(weightSum);
 	}
-
-	cout << "weightList's elem: ";
+	ostringstream oss;
+	oss << "weightList's elem:";
 	for(auto item : weightList)
 	{
-		cout << item << "\t";
+		oss << item << "\t";
 	}
-	cout << endl;
+	logInfo(oss.str());
 	return weightList;
 }
 
@@ -246,7 +246,7 @@ vector<double> WordQuery::getQueryWordsWeightVector(vector<string> & queryWords)
 bool WordQuery::executeQuery(const vector<string> & queryWords, 
 		vector<pair<int, vector<double> > > & resultVec)
 {
-	cout << "executeQuery()" << endl;
+	logInfo();     
 	if(queryWords.size() == 0)
 	{
 		cout <<"empty string not find" << endl;
@@ -255,17 +255,22 @@ bool WordQuery::executeQuery(const vector<string> & queryWords,
 
 	typedef	set<pair<int, double> >::iterator setIter;
 	vector<pair<setIter, int> > iterVec;//保存需要求取交集的迭代器
-	int minIterNum = 0x7FFFFFFF;//最小迭代器数量
+	int minIterNum = 0x7FFFFFFF;
 	for(auto item : queryWords)
 	{
-		int sz = _invertIndexTable[item].size();//包含该单词的文档数
+		int sz = _invertIndexTable[item].size();
 		if(sz == 0)
 			return false;
+		
 		if(minIterNum > sz)
 			minIterNum = sz;
-		iterVec.push_back(make_pair(_invertIndexTable[item].begin(), 0));//InvertIndexTable map<string,vector<int,double>>,存对应单词的vector的最开始的位置
+
+		iterVec.push_back(make_pair(_invertIndexTable[item].begin(), 0));
 	}
-	cout << "minIterNum = " << minIterNum << endl;
+	ostringstream oss;
+	oss<<"minIterNum="<<minIterNum;
+	logInfo(oss.str());;
+	//cout << "minIterNum = " << minIterNum << endl;
 
 	bool isExiting = false;
 	while(!isExiting)

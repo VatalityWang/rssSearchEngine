@@ -7,7 +7,7 @@
 
 #include "Thread.h"
 #include <iostream>
-
+#include "MyLog.h"
 namespace wd
 {
 
@@ -16,7 +16,6 @@ Thread::Thread(ThreadCallback cb)
 	  isRunning_(false),
 	  cb_(cb)
 {
-	std::cout << "Thread()" << std::endl;
 }
 
 void Thread::start()
@@ -34,7 +33,7 @@ void Thread::join()
 void* Thread::threadFunc(void * arg)
 {
 	Thread * pThread = static_cast<Thread *>(arg);
-	if(pThread != NULL)//线程创建成功，则执行线程回调函数。
+	if(pThread != NULL)
 	{	
 		pThread->cb_();
 		return pThread;
@@ -47,7 +46,6 @@ Thread::~Thread()
 {
 	if(isRunning_)
 		pthread_detach(pthId_);
-	std::cout << "~Thread()" << std::endl;
 }
 
 } // end of namespace wd

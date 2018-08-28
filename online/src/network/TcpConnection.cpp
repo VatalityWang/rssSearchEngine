@@ -8,7 +8,7 @@
 #include "EpollPoller.h"
 #include <string.h>
 #include <stdio.h>
-
+#include"MyLog.h"
 
 namespace wd
 {
@@ -30,10 +30,10 @@ TcpConnection::~TcpConnection()
 		isShutdownWrite_ = true;
 		shutdown();
 	}
-	printf("~TcpConnection()\n");
+	logInfo();
 }
 
-std::string TcpConnection::receive()//接收对端发送过来的连接。
+std::string TcpConnection::receive()
 {
 	char buf[1024];
 	memset(buf, 0, sizeof(buf));
@@ -54,8 +54,8 @@ void TcpConnection::send(const std::string & msg)
 //针对php服务器
 void TcpConnection::sendAndClose(const std::string & msg)
 {
-	send(msg);//发送信息，文件描述符由Socket封装提供
-	shutdown();//关闭Socket连接
+	send(msg);
+	shutdown();
 }
 
 void TcpConnection::sendInLoop(const std::string & msg)
@@ -72,7 +72,7 @@ void TcpConnection::shutdown()
 
 std::string TcpConnection::toString()
 {
-	char str[100];//字符串拼接
+	char str[100];
 	snprintf(str, sizeof(str), "%s:%d -> %s:%d",
 			 localAddr_.ip().c_str(),
 			 localAddr_.port(),
@@ -81,7 +81,7 @@ std::string TcpConnection::toString()
 	return std::string(str);
 }
 
-//初始化回调函数
+
 void TcpConnection::setConnectionCallback(TcpConnectionCallback cb)
 {
 	onConnectionCb_ = cb;
@@ -96,7 +96,7 @@ void TcpConnection::setCloseCallback(TcpConnectionCallback cb)
 {
 	onCloseCb_ = cb;
 }
-//如果回调函数为空，初始化回调函数
+
 void TcpConnection::handleConnectionCallback()
 {
 	if(onConnectionCb_)
@@ -106,7 +106,7 @@ void TcpConnection::handleConnectionCallback()
 void TcpConnection::handleMessageCallback()
 {
 	if(onMessageCb_)
-		onMessageCb_(shared_from_this());//获取监控的对象知智能指针，以便在WordQuerySever里面调用该对象的相关成员函数。实现发送和接收
+		onMessageCb_(shared_from_this());
 }
 
 void TcpConnection::handleCloseCallback()

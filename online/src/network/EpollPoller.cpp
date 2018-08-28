@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <assert.h>
 #include <sys/eventfd.h>
-
+#include"MyLog.h"
 
 namespace wd
 {
@@ -30,15 +30,15 @@ int createEpollFd()
 
 int createEventFd()
 {
-	int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);//非阻塞方式,类似于open的O_CLOEXEC,执行exec（）时，之前通过open打开的文件描述符会自动关闭测试，open之后，调用exec（），在新的进程中检测描述符是否已经关闭，初始化计数器的值为0，改值保存在内核中
+	int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
 	if(-1 == evtfd)
 	{
 		perror("eventfd create error");
-	}	
+	}
 	return evtfd;
 }
 
-void addEpollFdRead(int efd, int fd)//将fd注册到efd(epoll)所监听的事件列表中
+void addEpollFdRead(int efd, int fd)
 {
 	struct epoll_event ev;
 	ev.data.fd = fd;
@@ -106,7 +106,7 @@ bool isConnectionClosed(int sockfd)
 EpollPoller::EpollPoller(int listenfd)
 : epollfd_(createEpollFd())
 , listenfd_(listenfd)
-, wakeupfd_(createEventFd())// 进程，线程间通信
+, wakeupfd_(createEventFd())
 , isLooping_(false)
 , eventsList_(1024)
 {
@@ -147,21 +147,21 @@ void EpollPoller::runInLoop(const Functor & cb)
 
 void EpollPoller::doPendingFunctors()
 {
-	printf("doPendingFunctors()\n");
-	std::vector<Functor> functors;//处理回调函数的容器
+	logInfo("doPendingFunctors()");
+	std::vector<Functor> functors;
 	{
 	MutexLockGuard mlg(mutex_);
-	functors.swap(pendingFunctors_);//将pendingFunctors中的任务交换到functor中去
+	functors.swap(pendingFunctors_);
 	}
 	
 	for(size_t i = 0; i < functors.size(); ++i)
 	{
-		functors[i]();//执行该函数
+		functors[i]();
 	}
 }
 
 
-void EpollPoller::wakeup()//任务函数插入任务队列的通知机制
+void EpollPoller::wakeup()
 {
 	uint64_t one = 1;
 	ssize_t n = ::write(wakeupfd_, &one, sizeof(one));
@@ -171,7 +171,7 @@ void EpollPoller::wakeup()//任务函数插入任务队列的通知机制
 	}
 }
 
-void EpollPoller::handleRead()//处理evenfd,执行读操作。
+void EpollPoller::handleRead()
 {
 	uint64_t one = 1;
 	ssize_t n = ::read(wakeupfd_, &one, sizeof(one));
@@ -205,8 +205,8 @@ void EpollPoller::waitEpollfd()
 		nready = ::epoll_wait(epollfd_, 
 							  &(*eventsList_.begin()),
 							  eventsList_.size(),
-							  5000);//epoll文件描述符，监听事件的结构体的指针，事件列表的大小，阻塞时间5000毫秒
-	}while(nready == -1 && errno == EINTR);//返回准备好I/o的文件描述的个数
+							  5000);
+	}while(nready == -1 && errno == EINTR);
 
 	if(nready == -1)
 	{
@@ -215,7 +215,7 @@ void EpollPoller::waitEpollfd()
 	}
 	else if(nready == 0)
 	{
-		printf("epoll_wait timeout\n");	
+		logInfo("epoll_wait timeout");	
 	}
 	else
 	{
@@ -228,16 +228,16 @@ void EpollPoller::waitEpollfd()
 		//遍历每一个激活的文件描述符
 		for(int idx = 0; idx != nready; ++idx)
 		{
-			if(eventsList_[idx].data.fd == listenfd_)//事件集合文件描述符等于监听的文件描述符，有新的连接加进来
+			if(eventsList_[idx].data.fd == listenfd_)
 			{
-				if(eventsList_[idx].events & EPOLLIN)//普通或者是优先级数据可读
+				if(eventsList_[idx].events & EPOLLIN)
 				{
 					handleConnection();
 				}
 			}
-			else if(eventsList_[idx].data.fd == wakeupfd_)//一个连接任务处理完毕
+			else if(eventsList_[idx].data.fd == wakeupfd_)
 			{
-				printf("wakeupfd light\n");
+				logInfo("wakeupfd light");
 				if(eventsList_[idx].events & EPOLLIN)
 				{
 					handleRead();
@@ -246,7 +246,7 @@ void EpollPoller::waitEpollfd()
 			}
 			else
 			{
-				if(eventsList_[idx].events & EPOLLIN)//信息处理完毕，直接
+				if(eventsList_[idx].events & EPOLLIN)
 				{
 					handleMessage(eventsList_[idx].data.fd);
 				}
@@ -258,30 +258,30 @@ void EpollPoller::waitEpollfd()
 void EpollPoller::handleConnection()
 {
 	int peerfd = acceptConnFd(listenfd_);
-	addEpollFdRead(epollfd_, peerfd);//将该连接的描述符加入epoll 监听队列。
+	addEpollFdRead(epollfd_, peerfd);
 
-	TcpConnectionPtr conn(new TcpConnection(peerfd, this));//每来一个连接创建一个TcpConnection连接的对象
+	TcpConnectionPtr conn(new TcpConnection(peerfd, this));
 	//...给客户端发一个欢迎信息==> 挖一个空: 等...
-	//conn->send("welcome to server.\n");//创建好对象之后，用该对象去掉回调设置函数。
+	//conn->send("welcome to server.\n");
 	conn->setConnectionCallback(onConnectionCb_);
 	conn->setMessageCallback(onMessageCb_);
 	conn->setCloseCallback(onCloseCb_);
 
-	std::pair<ConnectionMap::iterator, bool> ret;//EpollePoller.h 中，有ConnectionMap的定义
+	std::pair<ConnectionMap::iterator, bool> ret;
 	ret = connMap_.insert(std::make_pair(peerfd, conn));
 	assert(ret.second == true);
 	(void)ret;
 	//connMap_[peerfd] = conn;
 
-	conn->handleConnectionCallback();//调用回调函数，将TcpConnection本身的指针传给回调函数。完成连接成功的初始化工作
+	conn->handleConnectionCallback();
 }
 
 void EpollPoller::handleMessage(int peerfd)
 {
 	bool isClosed = isConnectionClosed(peerfd);
-	ConnectionMap::iterator it = connMap_.find(peerfd);//从当前所有的连接中去找当前有数据可读的连接
+	ConnectionMap::iterator it = connMap_.find(peerfd);
 	assert(it != connMap_.end());
-//找到后检查是否关闭
+
 	if(isClosed)
 	{
 		it->second->handleCloseCallback();
