@@ -3,16 +3,18 @@
  /// @author  lemon(haohb13@gmail.com)
  /// @date    2016-01-25 19:46:04
  ///
- //
- 
+
+
 #include "TcpServer.h"
 #include "WordQuery.hpp"
 #include "Threadpool.h"
+#include"MyLog.h"
 
 #include <stdio.h>
 
 #include <string>
 #include <functional>
+
 
 using namespace std;
 using namespace wd;
@@ -31,7 +33,7 @@ private:
 
 	void onClose(const TcpConnectionPtr & conn);
 
-	void doTaskThread(const TcpConnectionPtr & conn, const string & msg);//任务线程
+	void doTaskThread(const TcpConnectionPtr & conn, const string & msg);
 
 private:
 	Configuration _conf;
@@ -41,11 +43,11 @@ private:
 };
 
 
-WordQueryServer::WordQueryServer(const string & configfile)//
-: _conf(configfile)//初始化配置文件
-, _wordQuery(_conf)//读配置文件
-, _tcpServer(5080)//初始化服务器的端口
-, _pool(4, 10)//创建线程4个线程和任务队列的容量。
+WordQueryServer::WordQueryServer(const string & configfile)
+: _conf(configfile)
+, _wordQuery(_conf)
+, _tcpServer(5080)
+, _pool(4, 10)
 {
 	_tcpServer.setConnectionCallback(
 			std::bind(&WordQueryServer::onConnection, this, placeholders::_1));
@@ -65,13 +67,14 @@ void WordQueryServer::start()
 
 void WordQueryServer::onConnection(const TcpConnectionPtr & conn)
 {
-	printf("%s\n", conn->toString().c_str());//连上的信号作为回调函数的触发信号
+	printf("%s\n", conn->toString().c_str());
+
 }
 
 
 void WordQueryServer::onMessage(const TcpConnectionPtr & conn)
 {
-	string msg(conn->receive());//接收客户端发送过来的关键词并在屏幕上打印出来。
+	string msg(conn->receive());
 	size_t pos = msg.find('\n');
 	msg = msg.substr(0, pos);
 	cout << "client:" << msg << ",size:" << msg.size() << endl;
@@ -79,9 +82,10 @@ void WordQueryServer::onMessage(const TcpConnectionPtr & conn)
 	//string ret = _wordQuery.doQuery(msg);
 	//cout << "result's size:" << ret.size() << endl;
 	//conn->send(ret);
-	
+
 	_pool.addTask(std::bind(&WordQueryServer::doTaskThread, this, conn, msg));
 }
+
 
 void WordQueryServer::onClose(const TcpConnectionPtr & conn)
 {
@@ -90,10 +94,9 @@ void WordQueryServer::onClose(const TcpConnectionPtr & conn)
 
 void WordQueryServer::doTaskThread(const TcpConnectionPtr & conn, const string & msg)
 {
-
 	string ret = _wordQuery.doQuery(msg);
+
 	int sz = ret.size();
-	
 	printf("result's size:%d\n",sz); 
 	//printf("%s\n\n", ret.c_str());
 	conn->sendInLoop(ret);
@@ -102,7 +105,9 @@ void WordQueryServer::doTaskThread(const TcpConnectionPtr & conn, const string &
 
 int main(void)
 {
+	logger.info("haha");
 	WordQueryServer wordQueryServer("./conf/my.conf");
 	wordQueryServer.start();
+	
 	return 0;
 }
