@@ -1,6 +1,6 @@
  ///
  /// @file    RssReader.cc
- /// @author  lemon(haohb13@gmail.com)
+ /// @author  Damon(1225228598@qq.com)
  /// @date    2016-08-30 14:09:14
  ///
 
