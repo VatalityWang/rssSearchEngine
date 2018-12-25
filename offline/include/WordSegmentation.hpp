@@ -1,7 +1,7 @@
  ///
  /// @file    WordSegmentation.hpp
  /// @author  Damon(1225228598@qq.com)
- /// @date    2016-01-18 15:43:06
+ /// @date    2017-01-18 15:43:06
  ///
 
 #ifndef _WD_WORD_SEGMENTATION_H_

@@ -1,7 +1,7 @@
  ///
  /// @file    RssReader.h
  /// @author  Damon(1225228598@qq.com)
- /// @date    2016-08-30 11:06:54
+ /// @date    2017-08-30 11:06:54
  ///
  
 #ifndef __WANGDAO_RSSREADER_H__
