@@ -9,8 +9,10 @@ Description:用php写的udp客户端，该客户端只是一个媒介作用，�
 *****************************************************/
 
 $buff=$_REQUEST["content"];//采用$_REQUEST超全局数组来接收index.html页面post请求传递过来的数据
+//$buff=8;
+//$buff="青春\n";
 //tcp  client 
-$serverIp="192.168.113.254";//服务端ip地址，如果你的客户端与服务端不在同一台电脑，请修改该ip地址
+$serverIp="127.0.0.1";//服务端ip地址，如果你的客户端与服务端不在同一台电脑，请修改该ip地址
 $serverPort=5080;//通信端口号
 //设置超时时间
 set_time_limit(0);
@@ -39,8 +41,8 @@ if(!socket_write($sock, $buff))
 }
 else
 {
-	//echo "发送成功，内容为:";
-	//echo $buff;
+	echo "发送成功，内容为:";
+	echo $buff;
 }
 
 $buff = "";//清空缓冲区
