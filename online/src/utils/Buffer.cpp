@@ -1,16 +1,16 @@
  ///
  /// @file    Buffer.cc
- /// @author  lemon(haohb13@gmail.com)
- /// @date    2015-11-02 11:31:01
+ /// @author  Damon(1225228598@qq.com)
+ /// @data    2017-11-02 11:31:01
  ///
-//сихннЯлУ╪Ч╠Да©╨мкЬ╧╡м╛©ьжфхннЯ╤сап
+//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫м╛О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 #include "Buffer.h"
 
 namespace wd
 {
 Buffer::Buffer(size_t size)
 	:	mutex_(),
-		notFull_(mutex_),// ╦ЬлУ╪Ч╠Да©╦ЁкЬ╣дЁУж╣
+		notFull_(mutex_),// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫дЁО©╫ж╣
 		notEmpty_(mutex_),//tongshang
 		size_(size),
 		flag_(true)
@@ -29,24 +29,24 @@ bool Buffer::empty()
 	  
 void Buffer::push(Task task)
 {
-	MutexLockGuard guard(mutex_);//╬ж╡©╤тоС
-	while(full())//й╧сцwhileйгн╙ак╥юж╧╠╩рЛЁё╩╫пяё╛хГ╧ШхннЯ╤сапр╩ж╠йгбЗ╣дё╛р╩ж╠╣х╢Щё╛ж╠╣╫╡╩бЗн╙ж╧║ё
+	MutexLockGuard guard(mutex_);//О©╫ж╡О©╫О©╫О©╫О©╫О©╫
+	while(full())//й╧О©╫О©╫whileО©╫О©╫н╙О©╫к╥О©╫ж╧О©╫О©╫О©╫ЛЁёО©╫О©╫О©╫яёО©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫р╩ж╠О©╫О©╫О©╫О©╫О©╫дёО©╫р╩ж╠О©╫х╢О©╫О©╫О©╫ж╠О©╫О©╫О©╫О©╫О©╫О©╫н╙ж╧О©╫О©╫
 	{
 		notFull_.wait();
 	}
 	que_.push(task);
 	
-	notEmpty_.notify();//╦Ь╣х╢Щтз╦цлУ╪Чио╣д╠Да©оъЁл╥╒пе╨е
+	notEmpty_.notify();//О©╫О©╫О©╫х╢О©╫О©╫з╦О©╫О©╫О©╫О©╫О©╫О©╫о╣д╠О©╫О©╫О©╫О©╫ъЁл╥О©╫О©╫е╨О©╫
 
 }
 
 
-Buffer::Task Buffer::pop()//х║хннЯ
+Buffer::Task Buffer::pop()//х║О©╫О©╫О©╫О©╫
 {
-	MutexLockGuard guard(mutex_);//╪скЬ
+	MutexLockGuard guard(mutex_);//О©╫О©╫О©╫О©╫
 	//mutex_.lock();
 
-	while(empty() && flag_)//еп©у
+	while(empty() && flag_)//О©╫п©О©╫
 	{
 		notEmpty_.wait();
 	}
@@ -70,7 +70,7 @@ Buffer::Task Buffer::pop()//х║хннЯ
 
 void Buffer::wakeup_empty()
 {
-	notEmpty_.notifyall();//н╙©утРм╗ж╙кЫспоъЁл║ё
+	notEmpty_.notifyall();//н╙О©╫О©╫О©╫О©╫м╗ж╙О©╫О©╫О©╫О©╫О©╫ъЁл║О©╫
 }
 
 void Buffer::set_flag(bool flag)

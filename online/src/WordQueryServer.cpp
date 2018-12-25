@@ -1,6 +1,6 @@
  ///
  /// @file    WordQueryServer.cpp
- /// @author  lemon(haohb13@gmail.com)
+ /// @author  Damon(1225228598@qq.com)
  /// @date    2016-01-25 19:46:04
  ///
 

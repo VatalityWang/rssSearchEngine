@@ -1,7 +1,7 @@
  ///
  /// @file    thread.cc
- /// @author  lemon(haohb13@gmail.com)
- /// @date    2015-10-31 10:23:55
+ /// @author  Damon(1225228598@qq.com)
+ /// @data    2017-10-31 10:23:55
  ///
 
 

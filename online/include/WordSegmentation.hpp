@@ -1,6 +1,6 @@
  ///
  /// @file    WordSegmentation.hpp
- /// @author  lemon(haohb13@gmail.com)
+ /// @author  Damon(1225228598@qq.com)
  /// @date    2016-01-18 15:43:06
  ///
 

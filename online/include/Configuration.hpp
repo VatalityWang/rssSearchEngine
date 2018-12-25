@@ -1,7 +1,7 @@
  ///
  /// @file    Configuration.hpp
- /// @author  lemon(haohb13@gmail.com)
- /// @date    2015-11-10 17:21:12
+ /// @author  Damon(1225228598@qq.com)
+ /// @data    2017-11-10 17:21:12
  ///
 
 #ifndef _WD_CONFIGURATION_H_
