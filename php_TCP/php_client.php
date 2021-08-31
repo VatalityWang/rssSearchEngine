@@ -1,7 +1,7 @@
 <?php
 /*
-*Author:yuandong
-Date:2014-4-25
+*Author:damonwang
+Date:2018-4-25
 Description:用php写的udp客户端，该客户端只是一个媒介作用，目的是把
 浏览器通过post请求传递的关键字通过udp协议传给server端(C语言写的),
 因为浏览器不能直接把关键字发给server
